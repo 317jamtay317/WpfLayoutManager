@@ -1,23 +1,30 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using DockManager.Controls.Core.Args;
 using DockManager.Controls.Helpers.Builders;
 
 namespace DockManager.Controls;
 
-internal class LayoutManagerRegions : FrameworkElement
+public class Regions : Control
 {
-    private readonly Grid _grid;
+    protected Grid MainGrid { get; set; }
 
-    public LayoutManagerRegions(
+    public Regions(
+        LayoutDefinition rows,
+        LayoutDefinition columns)
+    {
+        Rows = rows.ToString();
+        Columns = columns.ToString();
+    }
+    
+    public Regions(
         LayoutDefinition rows,
         LayoutDefinition columns,
         Grid grid)
     {
-        _grid = grid;
         Rows = rows.ToString();
         Columns = columns.ToString();
+        MainGrid = grid;
     }
 
     #region Events
@@ -27,7 +34,7 @@ internal class LayoutManagerRegions : FrameworkElement
         name: nameof(LayoutChangedEvent),
         routingStrategy: RoutingStrategy.Bubble,
         handlerType: typeof(LayoutManagerRegionChanged),
-        ownerType: typeof(LayoutManagerRegions));
+        ownerType: typeof(Regions));
 
     // Provide CLR accessors for assigning an event handler.
     public event LayoutManagerRegionChanged LayoutChanged
@@ -70,6 +77,7 @@ internal class LayoutManagerRegions : FrameworkElement
         set => SetValue(ColumnsProperty, value);
     }
 
+
     #endregion
 
     private static void RaiseRowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
@@ -78,7 +86,7 @@ internal class LayoutManagerRegions : FrameworkElement
     private static void RaiseLayoutChanged(DependencyObject d, DependencyPropertyChangedEventArgs e,
         LayoutManagerRegionArgs.RegionType type)
     {
-        if (d is not LayoutManagerRegions layoutManagerRegions)
+        if (d is not Regions layoutManagerRegions)
         {
             return;
         }

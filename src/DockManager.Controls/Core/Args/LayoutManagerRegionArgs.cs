@@ -7,7 +7,7 @@ namespace DockManager.Controls.Core.Args;
 public class LayoutManagerRegionArgs : RoutedEventArgs
 {
     public LayoutManagerRegionArgs(RegionType regionType)
-        : base(LayoutManagerRegions.LayoutChangedEvent)
+        : base(Regions.LayoutChangedEvent)
     {
         ChangedRegion = regionType;
     }

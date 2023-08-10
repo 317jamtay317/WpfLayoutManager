@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.XPath;
-using DockManager.Controls.Core.Args;
 
 namespace DockManager.Controls
 {
@@ -15,33 +13,76 @@ namespace DockManager.Controls
         {
         }
 
-        static LayoutManager()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(LayoutManager),
-                new FrameworkPropertyMetadata(typeof(LayoutManager)));
-        }
-
         #region Properties
 
         internal static readonly DependencyProperty RegionsProperty = DependencyProperty.Register(
-            nameof(Regions), typeof(LayoutManagerRegions), typeof(LayoutManager), new PropertyMetadata(default(LayoutManagerRegions)));
-
-        internal LayoutManagerRegions Regions
-        {
-            get => (LayoutManagerRegions)GetValue(RegionsProperty);
-            set => SetValue(RegionsProperty, value);
-        }
-
-        public static readonly DependencyProperty DisplayPanelsProperty = DependencyProperty.Register(
-            nameof(DisplayPanels), 
+            nameof(Regions), 
+            typeof(Regions), 
+            typeof(LayoutManager),
+            new PropertyMetadata(default(Regions)));
+        
+        public static readonly DependencyProperty ContentPanelsProperty = DependencyProperty.Register(
+            nameof(ContentPanels), 
             typeof(DisplayPanels), 
             typeof(LayoutManager), 
             new PropertyMetadata(default(DisplayPanels), OnDisplayPanelsChanged));
+       
+        public static readonly DependencyProperty AutoHideGroupsProperty = DependencyProperty.Register(
+            nameof(AutoHideGroups), typeof(AutoHideGroups), 
+            typeof(LayoutManager),
+            new PropertyMetadata(default(AutoHideGroups)));
 
-        public DisplayPanels DisplayPanels
+        public static readonly DependencyProperty ContentTypeProperty = DependencyProperty.Register(
+            nameof(ContentType), 
+            typeof(ContentType), 
+            typeof(LayoutManager),
+            new (Controls.ContentType.Groups));
+
+        /// <summary>
+        /// Gets or sets whether we display a tab control
+        /// or panels in the content area
+        /// </summary>
+        public ContentType ContentType
         {
-            get => (DisplayPanels)GetValue(DisplayPanelsProperty);
-            set => SetValue(DisplayPanelsProperty, value);
+            get => (ContentType)GetValue(ContentTypeProperty);
+            set => SetValue(ContentTypeProperty, value);
+        }
+
+        /// <summary>
+        /// Regions Represent the sections of the layout manager
+        /// </summary>
+        internal Regions Regions
+        {
+            get => (Regions)GetValue(RegionsProperty);
+            set => SetValue(RegionsProperty, value);
+        }
+
+        /// <summary>
+        /// The items presented in the content area of the
+        /// LayoutManager
+        /// </summary>
+        /// <remarks>
+        /// This is used for both panels and tabs
+        /// </remarks>
+        public DisplayPanels ContentPanels
+        {
+            get => (DisplayPanels)GetValue(ContentPanelsProperty);
+            set => SetValue(ContentPanelsProperty, value);
+        }
+
+        /// <summary>
+        /// The panels on the left side of the app
+        /// that only display the caption until you
+        /// hover over them.
+        /// </summary>
+        /// <remarks>
+        /// If you pin an autohide group it moves to the content area
+        /// and adds a tab or a panel which ever is being used at the time
+        /// </remarks>
+        public AutoHideGroups AutoHideGroups
+        {
+            get => (AutoHideGroups)GetValue(AutoHideGroupsProperty);
+            set => SetValue(AutoHideGroupsProperty, value);
         }
 
         #endregion
@@ -50,49 +91,70 @@ namespace DockManager.Controls
         {
             base.OnApplyTemplate();
 
-            var grid = Template.FindName("PART_MainGrid", this) as Grid;
-            if (grid is null)
+            _mainGrid = Template.FindName("PART_MainGrid", this) as Grid;
+            if (_mainGrid is null)
             {
                 throw new NoNullAllowedException("Grid should never be null"); 
             }
             
-            Regions = new ("*", "*", grid);
-            Regions.LayoutChanged += OnLayoutChanged;
+            Regions = new ("*", "*", _mainGrid);
+            Loaded += UpdatePanels;
             Unloaded += CleanUp;
+        }
+
+        private void UpdatePanels(object sender, RoutedEventArgs e)
+        {
+            OnDisplayPanelsCollectionChanged(sender, null);
         }
 
         private static void OnDisplayPanelsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is LayoutManager layoutManager)
             {
-                layoutManager.DisplayPanels.CollectionChanged -= layoutManager.OnDisplayPanelsCollectionChanged;
-                layoutManager.DisplayPanels.CollectionChanged += layoutManager.OnDisplayPanelsCollectionChanged;
+                layoutManager.ContentPanels.CollectionChanged -= layoutManager.OnDisplayPanelsCollectionChanged;
+                layoutManager.ContentPanels.CollectionChanged += layoutManager.OnDisplayPanelsCollectionChanged;
             }
         }
 
-        private void OnLayoutChanged(object sender, LayoutManagerRegionArgs args)
+        private void OnDisplayPanelsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            throw new System.NotImplementedException();
+            var columns = new string('*', ContentPanels.Count).ToCharArray().Select(x=>x.ToString());
+            Regions.Columns = string.Join(",", columns);
+            for (var i = 0; i < ContentPanels.Count; i++)
+            {
+                var group = ContentPanels[i] as LayoutPane;
+                _mainGrid.Children.Add(group!);
+                
+                Grid.SetColumn(group, i);
+            }
         }
 
-        private void OnDisplayPanelsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private static void OnContentTypeChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             
         }
 
         private void CleanUp(object sender, RoutedEventArgs e)
         {
-            Regions.LayoutChanged -= OnLayoutChanged;
             Unloaded -= CleanUp;
         }
+        
+        //fields
+        private Grid? _mainGrid;
     }
 
-    public class DisplayPanels : ObservableCollection<ILayoutGroup>
+    public enum ContentType
+    {
+        Groups,
+        Tabs
+    }
+
+    public class DisplayPanels : ObservableCollection<ILayoutPane>
     {
         
     }
 
-    public class AutoHideGroups : ObservableCollection<ILayoutGroup>
+    public class AutoHideGroups : ObservableCollection<ILayoutPane>
     {
         
     }

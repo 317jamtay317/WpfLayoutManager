@@ -2,7 +2,7 @@
 
 namespace DockManager.Controls;
 
-public interface ILayoutGroup
+public interface ILayoutPane
 {
     LayoutManagerLocation Location { get; }
 
@@ -13,6 +13,7 @@ public interface ILayoutGroup
     string Caption { get; set; }
     
     object Content { get; set; }
+
 }
 
 public enum LayoutManagerLocation

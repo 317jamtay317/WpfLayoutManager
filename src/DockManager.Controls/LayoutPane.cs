@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace DockManager.Controls;
 
-public class LayoutGroup : ContentControl, ILayoutGroup
+public class LayoutPane : ContentControl, ILayoutPane
 {
     public LayoutManagerLocation Location { get; internal set; } = LayoutManagerLocation.Content;
     
@@ -12,7 +12,7 @@ public class LayoutGroup : ContentControl, ILayoutGroup
     public static readonly DependencyProperty HasChildrenProperty = DependencyProperty.Register(
         nameof(HasChildren),
         typeof(bool),
-        typeof(LayoutGroup),
+        typeof(LayoutPane),
         new FrameworkPropertyMetadata(default(bool), FrameworkPropertyMetadataOptions.NotDataBindable));
 
     public bool HasChildren
@@ -24,7 +24,7 @@ public class LayoutGroup : ContentControl, ILayoutGroup
     public static readonly DependencyProperty CaptionProperty = DependencyProperty.Register(
         nameof(Caption),
         typeof(string),
-        typeof(LayoutGroup),
+        typeof(LayoutPane),
         new PropertyMetadata(default(string)));
 
     public string Caption

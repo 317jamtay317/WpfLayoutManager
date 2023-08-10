@@ -6,7 +6,7 @@
     <Application.Resources>
          <ResourceDictionary>
              <ResourceDictionary.MergedDictionaries>
-                 <ResourceDictionary Source="pack://application:,,,/DockManager.Controls;component/ControlResources/LayoutGroup.xaml" />
+                 <ResourceDictionary Source="pack://application:,,,/DockManager.Controls;component/ControlResources/AllControls.xaml" />
              </ResourceDictionary.MergedDictionaries>
          </ResourceDictionary>
     </Application.Resources>

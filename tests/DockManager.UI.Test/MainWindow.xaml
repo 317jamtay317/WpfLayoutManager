@@ -10,13 +10,19 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <controls:LayoutManager>
-            <controls:LayoutManager.DisplayPanels>
+            <controls:LayoutManager.ContentPanels>
                 <controls:DisplayPanels>
-                    <controls:LayoutGroup>
+                    <controls:LayoutPane Caption="First">
                         <test:TestView />
-                    </controls:LayoutGroup>
+                    </controls:LayoutPane>
+                    <controls:LayoutPane Caption="Second">
+                        <test:TestView />
+                    </controls:LayoutPane>
+                    <controls:LayoutPane Caption="Third">
+                        <test:TestView Foreground="Black"/>
+                    </controls:LayoutPane>
                 </controls:DisplayPanels>
-            </controls:LayoutManager.DisplayPanels>
+            </controls:LayoutManager.ContentPanels>
         </controls:LayoutManager>
     </Grid>
 </Window>

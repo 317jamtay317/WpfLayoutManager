@@ -11,7 +11,7 @@ namespace DockManager.Controls.Helpers.Builders;
 /// the definition of what size the dock manager will
 /// create the panels at
 /// </summary>
-internal sealed class LayoutDefinition : IReadOnlyCollection<GridLength> , IEquatable<LayoutDefinition>
+public sealed class LayoutDefinition : IReadOnlyCollection<GridLength> , IEquatable<LayoutDefinition>
 {
     public static implicit operator LayoutDefinition(string layoutString) => Create(layoutString);
     public static bool operator ==(LayoutDefinition left, LayoutDefinition right)
